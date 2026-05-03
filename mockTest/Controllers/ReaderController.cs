@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using mockTest.DTOs;
 using mockTest.Exceptions;
+using mockTest.Services;
 
 namespace mockTest.Controllers
 {
@@ -46,7 +47,7 @@ namespace mockTest.Controllers
             }
             catch (NotFoundException e)
             {
-                return NotFound(e.Message);
+                return NotFound(e.message);
             }
         }
     }
