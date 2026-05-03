@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using mockTest.DTOs;
+using mockTest.Exceptions;
 
 namespace mockTest.Controllers
 {
@@ -22,7 +24,7 @@ namespace mockTest.Controllers
                 var result = await _dbService.GetReadersLoansAsync(id);
                 return Ok(result);
             }
-            catch (NotFoundxception e)
+            catch (NotFoundException e)
             {
                 return NotFound(e.message);
             }
@@ -44,7 +46,7 @@ namespace mockTest.Controllers
             }
             catch (NotFoundException e)
             {
-                return NotFound(e.message);
+                return NotFound(e.Message);
             }
         }
     }
