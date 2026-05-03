@@ -27,7 +27,7 @@ namespace mockTest.Controllers
             }
             catch (NotFoundException e)
             {
-                return NotFound(e.message);
+                return NotFound(e.Message);
             }
         }
 
@@ -47,7 +47,7 @@ namespace mockTest.Controllers
             }
             catch (NotFoundException e)
             {
-                return NotFound(e.message);
+                return NotFound(e.Message);
             }
         }
     }

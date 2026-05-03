@@ -100,6 +100,73 @@ public class DbService : IDbService
 
     public async Task CreateLoansWithBooksAsync(int readerId, CreateLoansWithBooksDto dto)
     {
-        throw new NotImplementedException();
+        var createLoanQuery = """
+
+                              """;
+        var createLoanItemQuery = """
+
+                                  """;
+        var getBookIdQuery = """
+
+                             """;
+        var checkReaderQuery = """
+
+                               """;
+        
+        await using var connection = new SqlConnection(_connectionString);
+        await connection.OpenAsync();
+	    
+        await using var transaction = await connection.BeginTransactionAsync();
+        
+        await using var command = new SqlCommand();
+        command.Connection = connection;
+        command.Transaction = transaction as SqlTransaction;
+
+        try
+        {
+            command.Parameters.Clear();
+            command.CommandText =  createLoanQuery;
+            command.Parameters.AddWithValue("Id", readerId);
+
+            var readerIdRes = await command.ExecuteScalarAsync();
+            command.Parameters.Clear();
+            command.CommandText = createLoanQuery;
+            command.Parameters.AddWithValue("@ReaderId", readerId);
+            command.Parameters.AddWithValue("@LoanId", readerId);
+            command.Parameters.AddWithValue("@LoanDate", dto.LoanDate);
+            command.Parameters.AddWithValue("@DueDate", dto.DueDate);
+            
+            var loanObject = await command.ExecuteScalarAsync();
+            var loanId = Convert.ToInt32(loanObject);
+
+            foreach (var book in dto.Books)
+            {
+                command.Parameters.Clear();
+                command.CommandText = getBookIdQuery;
+                command.Parameters.AddWithValue("@Title", book.Title);
+				
+                var bookObject = await command.ExecuteScalarAsync();
+                if (bookObject == null)
+                {
+                    throw new NotFoundException($"Movie - {book.Title} - not found.");
+                }
+				
+                var bookId = Convert.ToInt32(bookObject);
+				
+                command.Parameters.Clear();
+                command.CommandText = createLoanItemQuery;
+                command.Parameters.AddWithValue("@LoanId", loanId);
+                command.Parameters.AddWithValue("@BookId", bookId);
+
+                await command.ExecuteNonQueryAsync();
+            }
+		    
+            await transaction.CommitAsync();
+        }
+        catch (Exception e)
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 }
